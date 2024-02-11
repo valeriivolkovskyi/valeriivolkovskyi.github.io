@@ -1,16 +1,28 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>WalkSky | Pragmatic web development</title>
-    <meta name="description" content="This blog about web development and open source  project">
+---
+layout: page.webc
+title: WalkSky | Pragmatic web development
+description: Blog about web development and open source projects
+---
 
-    <link rel="stylesheet" webc:keep :href="getBundleFileUrl('css')">
 
-</head>
-<body>
-<h1 class="test">Pragmatic web development</h1>
-<my-component> </my-component>
+<h1>Blog about web development and high quality open source projects</h1>
+<div>Long description</div>
+<div>
+    <h4>Articles lists</h4>
+    <ul>
+        <li>Article 1</li>
+        <li>Article 2</li>
+        <li>Article 3</li>
+        <li>Article 4</li>
+    </ul>
+</div>
+<div>
+    <h4>projects</h4>
+    <ul>
+        <li>Project 1</li>
+        <li>Project 2</li>
+    </ul>
+</div>
+<div><h4>tags</h4></div>
+<my-component></my-component>
 
-</body>
-</html>
