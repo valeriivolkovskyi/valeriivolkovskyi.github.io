@@ -3,16 +3,157 @@
 <head>
     <meta charset="UTF-8">
     <title>WalkSky | Pragmatic web development</title>
-    <meta name="description" content="This blog about web development and open source  project">
+    <meta name="description" content="Blog about web development and open source projects">
 
-    <link rel="stylesheet" href="/bundle/Ipm8qRGEjo.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="canonical" href="walksky.dev">
+    <meta name="author" content="Valerii Volkovskyi">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="path-to-your-favicon.ico">
+
+    <!-- For Apple devices -->
+    <link rel="apple-touch-icon" href="apple-icon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <!--For Android devices -->
+    <meta name="theme-color" content="#FF00FF"> <!-- Status bar color -->
+    <link rel="manifest" href="manifest.json">
+
+    <link rel="stylesheet" href="/bundle/-BuaIPyZts.css">
+    <style>
+        body {
+            color: #333;
+            font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+            padding: 0;
+        }
+
+        .content {
+            flex: 1;
+            padding: 1em;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: Courier New, Courier, Lucida Sans Typewriter, Lucida Typewriter, monospace;
+            line-height: 1.2;
+            margin-bottom: 0.5em;
+            text-align: left;
+        }
+
+        h1 {
+            font-size: 2.5em;
+        }
+
+        h2 {
+            font-size: 2em;
+        }
+
+        h3 {
+            font-size: 1.5em;
+        }
+
+        h4 {
+            font-size: 1.25em;
+        }
+
+        p {
+            line-height: calc(1.5em + .2vw);
+            color: #444;
+            font-size: 16px;
+            margin-bottom: 1em;
+            text-align: justify;
+            font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+        }
+
+        #header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2rem;
+            background-color: #f8f9fa;
+            box-shadow: 0px 1px 1px #ddd;
+            font-family: Courier, Lucida Sans Typewriter, Lucida Typewriter, monospace;
+        }
+
+
+        #nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+
+        #nav ul li {
+            margin-right: 1rem;
+        }
+
+        #nav ul li a {
+            text-decoration: none;
+            color: #333;
+            transition: color 0.3s ease;
+        }
+
+        #nav ul li a:hover {
+            color: #007bff;
+        }
+
+
+        #footer {
+            background-color: #333;
+            color: white;
+            padding: 1em;
+            bottom: 0;
+        }
+    </style>
 
 </head>
+
 <body>
-<h1 class="test">Pragmatic web development</h1>
-<my-component><div class="test">My component3</div>
+<header id="header">
+    <nav id="nav">
+        <ul>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#articles">Articles</a></li>
+            <li><a href="#contact">Projects</a></li>
+            <li><a href="#about">About</a></li>
+        </ul>
+    </nav>
+</header>
+
+<main class="content"><h1>Blog about web development and high quality open source projects</h1>
+<div>Long description</div>
+<div>
+    <h4>Articles lists</h4>
+    <ul>
+        <li>Article 1</li>
+        <li>Article 2</li>
+        <li>Article 3</li>
+        <li>Article 4</li>
+    </ul>
+</div>
+<div>
+    <h4>projects</h4>
+    <ul>
+        <li>Project 1</li>
+        <li>Project 2</li>
+    </ul>
+</div>
+<div><h4>tags</h4></div>
+<my-component><div class="test">My TEST WEB component3</div>
 
 </my-component>
+
+</main>
+
+<footer id="footer">
+    © Valerii Volkovskyi 2024
+</footer>
+
 
 
 </body>
