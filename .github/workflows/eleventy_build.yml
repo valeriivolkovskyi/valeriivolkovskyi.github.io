@@ -34,7 +34,7 @@ jobs:
       - run: npm run build
 
       - name: List directories
-        run: ls ./dist -l
+        run: ls ./_site -l
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
