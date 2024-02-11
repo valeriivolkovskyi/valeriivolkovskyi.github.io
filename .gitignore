@@ -4,4 +4,8 @@ node_modules/
 # JetBrains IDE
 .idea/
 
+# Build folder
 _site
+
+# Environment variables
+.env

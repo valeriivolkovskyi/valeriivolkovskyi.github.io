@@ -1,0 +1,8 @@
+---
+layout: page.webc
+title: WalkSky | Pragmatic web development
+description: Blog about web development and open source projects
+---
+<div>Article structure on left</div>
+<div>Articles list right fixed</div>
+<div>Tags Cloud right fixed</div>
