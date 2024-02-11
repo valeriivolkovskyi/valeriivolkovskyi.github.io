@@ -1,0 +1,7 @@
+<div class="test">My component1</div>
+
+<style>
+    .test {
+        background-color: green;
+    }
+</style>

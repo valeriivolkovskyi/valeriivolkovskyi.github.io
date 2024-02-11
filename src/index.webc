@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WalkSky | Pragmatic web development</title>
+    <meta name="description" content="This blog about web development and open source  project">
+
+    <link rel="stylesheet" webc:keep :href="getBundleFileUrl('css')">
+
+</head>
+<body>
+<h1 class="test">Pragmatic web development</h1>
+<my-component> </my-component>
+
+</body>
+</html>
