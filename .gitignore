@@ -9,3 +9,6 @@ _site
 
 # Environment variables
 .env
+
+# articles
+data
