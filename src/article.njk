@@ -1,0 +1,11 @@
+---
+layout: article.webc
+pagination:
+    data: articlesData
+    size: 1
+    alias: article
+permalink: "articles/{{article.properties.Slug.url | slugify }}/index.html"
+---
+<li>{{ article.properties.Slug.url }} 1</li>
+
+

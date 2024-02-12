@@ -14,7 +14,6 @@ module.exports = function(eleventyConfig) {
     dir: {
       input: "src",
       output: "_site",
-      htmlTemplateEngine: "webc",
       data: '../_data'
     }
   }

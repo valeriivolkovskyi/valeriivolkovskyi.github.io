@@ -57,14 +57,21 @@ async function getFullPage() {
   const pages = [];
 
   for (const pageInfo of results) {
-    const page = await getPageBlocks(pageInfo.id);
+    const blocks = await getPageBlocks(pageInfo.id);
+
+    const {Name, Description, ...restProps} = pageInfo.properties;
+
     pages.push({
-      blocks: page.results.map(block => ({
+      blocks: blocks.results.map(block => ({
         has_children: block.has_children,
         type: block.type,
         [block.type]: block[block.type]
       })),
-      properties: pageInfo.properties,
+      properties: {
+        name: Name.title[0].plain_text,
+        description: Description.rich_text[0].plain_text,
+        ...restProps
+      },
       last_edited_time: pageInfo.last_edited_time,
     });
   }

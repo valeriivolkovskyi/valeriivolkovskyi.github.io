@@ -1,0 +1,13 @@
+---
+layout: page.webc
+pagination:
+    data: articlesData
+    size: 10
+    alias: article
+---
+
+<ol>
+    {%- for article in articlesData %}
+    <li>{{ article.properties.Slug.url }}</li>
+    {% endfor -%}
+</ol>

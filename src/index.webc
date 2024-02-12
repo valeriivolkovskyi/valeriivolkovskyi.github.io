@@ -4,12 +4,9 @@ title: WalkSky | Pragmatic web development
 description: Blog about web development and open source projects
 ---
 
-
 <h1>Blog about web development and high quality open source projects</h1>
 <div>Long description</div>
 <div>
-<!--    <div webc:for="page of articlesData" @raw="page.last_edited_time"></div>-->
-    <div webc:for="item of articlesData" @text="item.last_edited_time"></div>
 
     <h4>Articles lists</h4>
     <ul>
