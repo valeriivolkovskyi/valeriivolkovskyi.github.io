@@ -69,13 +69,13 @@ async function getFullPage() {
     });
   }
 
-  return {pages};
+  return pages;
 }
 
 function generateJSON(data) {
   // Preparing path with path module to ensure the right file path.
-  const dirPath = path.resolve('../', './data');
-  const filePath = path.resolve(dirPath, './articles.json');
+  const dirPath = path.resolve('./', './_data');
+  const filePath = path.resolve(dirPath, './articlesData.json');
 
   // Remove directory
   rimraf.sync(dirPath);

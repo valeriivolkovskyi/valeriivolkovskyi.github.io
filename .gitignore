@@ -11,4 +11,4 @@ _site
 .env
 
 # articles
-data
+_data
