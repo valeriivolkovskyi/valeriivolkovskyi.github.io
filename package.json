@@ -5,8 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "eleventy --serve",
-    "prebuild:local": "node --env-file=.env ./build/getNotionData",
-    "prebuild": "node ./build/getNotionData",
+    "prebuild": "node --env-file=.env ./build/getNotionData",
     "build": "npm run prebuild && eleventy"
   },
   "keywords": [],

@@ -31,6 +31,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Create .env
+        run: |
+          echo "VARIABLE1=${{ secrets.NOTION_DB }}" > .env
+          echo "VARIABLE2=${{ secrets.NOTION_KEY }}" >> .env
+
       - run: npm run build
 
       - name: List directories
@@ -38,7 +43,6 @@ jobs:
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
-
         with:
           deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
           publish_dir: _site
