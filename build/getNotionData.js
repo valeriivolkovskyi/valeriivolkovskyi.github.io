@@ -1,3 +1,9 @@
+/**
+ * @typedef {import("@notionhq/client/build/src/api-endpoints").BlockObjectResponse} BlockObjectResponse
+ */
+
+
+
 const { Client } = require("@notionhq/client");
 const fs = require("fs");
 const path = require("path");
@@ -34,6 +40,10 @@ async function getPages() {
 	}
 }
 
+/**
+ * @typedef {import("@notionhq/client/build/src/api-endpoints").BlockObjectResponse} BlockObjectResponse
+ * @returns {Promise<BlockObjectResponse>}
+ */
 async function getPageBlocks(id) {
 	try {
 		return await notion.blocks.children.list({ block_id: id });
@@ -43,6 +53,10 @@ async function getPageBlocks(id) {
 	}
 }
 
+/**
+ *
+ * @returns {Promise<BlockObjectResponse[]>}
+ */
 async function getFullPages() {
 	const { results } = await getPages();
 	const pages = [];
@@ -68,6 +82,10 @@ function writeToFile(filePath, data) {
 	});
 }
 
+/**
+ * Generates JSON files from Notion data and saves them to the specified directory.
+ * @param {BlockObjectResponse} data - The Notion data to convert to JSON.
+ */
 function generateJSON(data) {
 	const dirPath = path.resolve("./", "./_data");
 	const articlesFilePath = path.resolve(dirPath, "./articlesData.json");
