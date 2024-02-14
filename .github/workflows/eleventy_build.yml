@@ -33,8 +33,8 @@ jobs:
 
       - name: Create .env
         run: |
-          echo "VARIABLE1=${{ secrets.NOTION_DB }}" > .env
-          echo "VARIABLE2=${{ secrets.NOTION_KEY }}" >> .env
+          echo "NOTION_DB=${{ secrets.NOTION_DB }}" > .env
+          echo "NOTION_KEY=${{ secrets.NOTION_KEY }}" >> .env
 
       - run: npm run build
 
