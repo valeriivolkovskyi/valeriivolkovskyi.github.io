@@ -3,6 +3,7 @@ layout: page.webc
 title: WalkSky | Pragmatic web development
 description: Blog about web development and open source projects
 ---
+<my-component></my-component>
 
 <h1>Blog about web development and high quality open source projects</h1>
 <div>Long description</div>
@@ -34,5 +35,4 @@ description: Blog about web development and open source projects
 
 
 </div>
-<my-component></my-component>
 
