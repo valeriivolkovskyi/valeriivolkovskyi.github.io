@@ -1,108 +1,92 @@
-const { Client } = require("@notionhq/client")
-const fs = require('fs');
-const path = require('path');
-const rimraf = require('rimraf');
-const mkdirp = require('mkdirp');
+const { Client } = require("@notionhq/client");
+const fs = require("fs");
+const path = require("path");
+const mkdirp = require("mkdirp");
+
+const mapNotionData = require("./mapNotionData");
 
 const NOTION_KEY = process.env.NOTION_KEY;
 const NOTION_DB = process.env.NOTION_DB;
 
 if (!NOTION_KEY || !NOTION_DB) {
-  throw new Error('Invalid keys');
+	throw new Error("Invalid keys");
 }
 
-// Initializing a client
 const notion = new Client({
-  auth: process.env.NOTION_KEY,
-})
+	auth: process.env.NOTION_KEY,
+});
 
 async function getPages() {
-try {
-  const data = notion.databases.query({
-    database_id: process.env.NOTION_DB,
-    "filter": {
-      "property": "Article Status",
-      "status": {
-        "equals": "Done"
-      }
-    },
-  })
-  return await data;
-} catch (err) {
-  console.log(err)
-  throw new Error('Can`t fetch Notion database');
-}
+	try {
+		const data = notion.databases.query({
+			database_id: process.env.NOTION_DB,
+			filter: {
+				property: "Article Status",
+				status: {
+					equals: "Done",
+				},
+			},
+		});
+		return await data;
+	} catch (err) {
+		console.log(err);
+		throw new Error("Can`t fetch Notion database");
+	}
 }
 
-/**
- * @param {string} id
- * @returns {ListBlockChildrenResponse}
- */
 async function getPageBlocks(id) {
-  try {
-    return await notion.blocks.children.list({block_id: id});
-  } catch (err) {
-    console.log(err);
-    throw new Error(`Can't fetch page: ${id}`)
-  }
+	try {
+		return await notion.blocks.children.list({ block_id: id });
+	} catch (err) {
+		console.log(err);
+		throw new Error(`Can't fetch page: ${id}`);
+	}
 }
 
-/**
- * Retrieves the blocks from the pages.
- * @typedef {Partial<PageObjectResponse & ListBlockChildrenResponse>} Pages
- * @returns {Promise<Pages>}
- */
-async function getFullPage() {
-  const {results} = await getPages();
-  const pages = [];
+async function getFullPages() {
+	const { results } = await getPages();
+	const pages = [];
 
-  for (const pageInfo of results) {
-    const blocks = await getPageBlocks(pageInfo.id);
+	for (const pageInfo of results) {
+		const blocks = await getPageBlocks(pageInfo.id);
 
-    const {Name, Description, ...restProps} = pageInfo.properties;
+		pages.push({
+			...pageInfo,
+			blocks,
+		});
+	}
+	return pages;
+}
 
-    pages.push({
-      blocks: blocks.results.map(block => ({
-        has_children: block.has_children,
-        type: block.type,
-        [block.type]: block[block.type]
-      })),
-      properties: {
-        name: Name.title[0].plain_text,
-        description: Description.rich_text[0].plain_text,
-        ...restProps
-      },
-      last_edited_time: pageInfo.last_edited_time,
-    });
-  }
-
-  return pages;
+function writeToFile(filePath, data) {
+	fs.writeFile(filePath, JSON.stringify(data), (err) => {
+		if (err) {
+			console.error(`Error while writing to the file: ${err}`);
+			throw new Error("Failed to write a JSON file");
+		}
+		console.log("Data written to file successfully.");
+	});
 }
 
 function generateJSON(data) {
-  // Preparing path with path module to ensure the right file path.
-  const dirPath = path.resolve('./', './_data');
-  const filePath = path.resolve(dirPath, './articlesData.json');
+	const dirPath = path.resolve("./", "./_data");
+	const articlesFilePath = path.resolve(dirPath, "./articlesData.json");
+	const projectsFilePath = path.resolve(dirPath, "./projectsData.json");
+	const tagsFilePath = path.resolve(dirPath, "./tagsData.json");
 
-  // Remove directory
-  rimraf.sync(dirPath);
+	const { articles, projects, tags } = mapNotionData(data);
 
-  // Create directory
-  mkdirp.sync(dirPath);
+	// Create directory
+	mkdirp.sync(dirPath);
 
-  fs.writeFile(filePath, JSON.stringify(data), (err) => {
-    if (err) {
-      console.error(`Error while writing to the file: ${err}`);
-      throw new Error("Failed to write a JSON file");
-    }
-    console.log('Data written to file successfully.');
-  });
+	writeToFile(articlesFilePath, articles);
+	writeToFile(projectsFilePath, projects);
+	writeToFile(tagsFilePath, tags);
 }
 
 async function getArticles() {
-  const data = await getFullPage();
-  generateJSON(data);
+	const data = await getFullPages();
+	generateJSON(data);
 }
-
 
 getArticles();

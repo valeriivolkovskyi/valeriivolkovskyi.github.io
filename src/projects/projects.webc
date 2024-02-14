@@ -3,15 +3,15 @@ layout: page.webc
 title: This is page with projects
 description: Open source projects
 pagination:
-    data: articlesData
+    data: projectsData
     size: 10
-    alias: article
+    alias: project
 
 ---
 
 <h4>Articles lists</h4>
 <ul>
-    <li webc:for="(item) of articlesData" >
-        <a @attributes="({ href: '/articles/'+ item.properties.Slug.url})" @text="item.properties.name"> </a>
+    <li webc:for="(item) of projectsData" >
+        <a @attributes="({ href: '/projects/'+ item.slug})" @text="item.title"> </a>
     </li>
 </ul>

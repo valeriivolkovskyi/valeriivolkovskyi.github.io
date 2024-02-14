@@ -4,6 +4,6 @@ pagination:
     data: articlesData
     size: 1
     alias: article
-permalink: "/articles/{{article.properties.Slug.url | slugify }}/index.html"
+permalink: "/articles/{{article.slug }}/index.html"
 ---
-<li>{{ article.properties.Slug.url }} 1</li>
+<li>{{ article.slug }} 1</li>

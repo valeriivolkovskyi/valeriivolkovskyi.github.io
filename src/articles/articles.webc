@@ -11,6 +11,6 @@ description: Web development blog about architecture, frameworks and disign solu
 <h4>Articles lists</h4>
 <ul>
     <li webc:for="(item) of articlesData" >
-        <a @attributes="({ href: '/articles/'+ item.properties.Slug.url})" @text="item.properties.name"> </a>
+        <a @attributes="({ href: '/articles/'+ item.slug})" @text="item.title"> </a>
     </li>
 </ul>

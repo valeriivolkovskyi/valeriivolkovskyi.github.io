@@ -11,17 +11,28 @@ description: Blog about web development and open source projects
     <h4>Articles lists</h4>
     <ul>
         <li webc:for="(item) of articlesData" >
-            <a @attributes="({ href: '/articles/'+ item.properties.Slug.url})" @text="item.properties.name"> </a>
+            <a @attributes="({ href: '/articles/'+ item.slug})" @text="item.title"> </a>
         </li>
     </ul>
 </div>
 <div>
     <h4>projects</h4>
     <ul>
-        <li>Project 1</li>
-        <li>Project 2</li>
+        <li webc:for="(item) of projectsData" >
+            <a @attributes="({ href: '/projects/'+ item.slug})" @text="item.title"> </a>
+        </li>
     </ul>
 </div>
-<div><h4>tags</h4></div>
+<div>
+    <h4>tags</h4>
+
+    <ul>
+        <li webc:for="(tag) of tagsData" >
+            <span @text="tag[0]"> </span>
+        </li>
+    </ul>
+
+
+</div>
 <my-component></my-component>
 
