@@ -1,13 +1,21 @@
 /**
  * @typedef {import("@notionhq/client/build/src/api-endpoints").BlockObjectResponse} BlockObjectResponse
+ * @typedef {import("@notionhq/client/build/src/api-endpoints").ImageBlockObjectResponse} ImageBlockObject
  * @typedef {import("@notionhq/client/build/src/api-endpoints").ParagraphBlockObjectResponse} ParagraphBlockObjectResponse
+ * @typedef {import("@notionhq/client/build/src/api-endpoints").RichTextItemResponse}  RichTextItem
  * @typedef {import("@notionhq/client/build/src/api-endpoints").TextRichTextItemResponse} TextRichTextItemResponse
  * @property {AnnotationResponse} TextRichTextItemResponse.AnnotationResponse
  */
 
-
 const blockTypeParsers = {
-	paragraph: (data) => parseRichText(data),
+	/** @param {ParagraphBlockObjectResponse} data */
+	paragraph: (data) => parseRichText(data.paragraph),
+
+	/** @param {ImageBlockObject} data */
+	image: (data) => {
+		const caption = data.image.caption;
+		return parseTextItem(caption);
+	},
 	bookmark: () => null,
 	breadcrumb: () => null,
 	bulleted_list_item: () => null,
@@ -21,7 +29,6 @@ const blockTypeParsers = {
 	equation: () => null,
 	file: () => null,
 	headings: () => null,
-	image: () => null,
 	link_preview: () => null,
 	mention: () => null,
 	numbered_list_item: () => null,
@@ -36,7 +43,6 @@ const blockTypeParsers = {
 	video: () => null,
 };
 
-
 /**
  * @param {AnnotationResponse} annotations
  * @param {string} text
@@ -49,27 +55,35 @@ function addAnnotations(annotations, text) {
 	if (annotations.strikethrough) annots = `<strike>${annots}</strike>`;
 	if (annotations.underline) annots = `<u>${annots}</u>`;
 	if (annotations.code) annots = `<code>${annots}</code>`;
-	if (annotations.color !== "default") annots = `<span class="n-color-${annotations.color}">${annots}</span>`
+	if (annotations.color !== "default")
+		annots = `<span class="n-color-${annotations.color}">${annots}</span>`;
 
 	return annots;
 }
 
 /**
- * @param {ParagraphBlockObjectResponse} text
+ *
+ * @param {TextRichTextItemResponse} text
+ * @return {string}
  */
-function parseRichText(text) {
-	if (text.paragraph.rich_text.length === 0) {
-		return null
+function parseTextItem(text) {
+	return addAnnotations(text.annotations, text.text.content);
+}
+
+/**
+ * @param {{ rich_text: Array<RichTextItemResponse>, color: ApiColor }} paragraph
+ * @return {string|null}
+ */
+function parseRichText(paragraph) {
+	if (paragraph.rich_text.length === 0) {
+		return null;
 	}
 
-	const slices = text.paragraph.rich_text.map((richText, ) => {
+	const color =
+		paragraph.color !== "default" ? ` class="n-color-${paragraph.color}"` : "";
+	const slices = paragraph.rich_text.map(parseTextItem);
 
-		/** @type {AnnotationResponse} */
-		const annots = richText.annotations;
-		return addAnnotations(annots, richText.text.content)
-	})
-
-  return `<p>${slices.join('')}</p>`;
+	return `<p${color}>${slices.join("")}</p>`;
 }
 
 /**
@@ -80,7 +94,7 @@ function parseBlock(block) {
 	const type = block.type;
 
 	if (blockTypeParsers.hasOwnProperty(type)) {
-		return blockTypeParsers[type](block)
+		return blockTypeParsers[type](block);
 	} else return null;
 }
 
@@ -99,7 +113,7 @@ function parseNotionBlocks(blocks) {
 		}
 	}
 
-	return result.join('');
+	return result.join("");
 }
 
 module.exports = parseNotionBlocks;

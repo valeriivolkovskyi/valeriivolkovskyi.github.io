@@ -2,8 +2,6 @@
  * @typedef {import("@notionhq/client/build/src/api-endpoints").BlockObjectResponse} BlockObjectResponse
  */
 
-
-
 const { Client } = require("@notionhq/client");
 const fs = require("fs");
 const path = require("path");
@@ -91,6 +89,9 @@ function generateJSON(data) {
 	const articlesFilePath = path.resolve(dirPath, "./articlesData.json");
 	const projectsFilePath = path.resolve(dirPath, "./projectsData.json");
 	const tagsFilePath = path.resolve(dirPath, "./tagsData.json");
+
+	// for debug
+	writeToFile(path.resolve(dirPath, "./_debug_data.json"), data);
 
 	const { articles, projects, tags } = mapNotionData(data);
 

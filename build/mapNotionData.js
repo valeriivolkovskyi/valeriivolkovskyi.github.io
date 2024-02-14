@@ -2,9 +2,7 @@
  * @typedef {import("@notionhq/client/build/src/api-endpoints").BlockObjectResponse} BlockObjectResponse
  */
 
-
-
-const parseNotionBlocks = require('./parseNotionBlocks');
+const parseNotionBlocks = require("./parseNotionBlocks");
 
 function getPlainText(data) {
 	return data[0]["plain_text"];

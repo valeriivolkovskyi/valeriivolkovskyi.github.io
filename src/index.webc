@@ -13,7 +13,6 @@ description: Blog about web development and open source projects
     <ul>
         <li webc:for="(item) of articlesData" >
             <a @attributes="({ href: '/articles/'+ item.slug})" @text="item.title"> </a>
-            <div @html="item.content"></div>
         </li>
     </ul>
 </div>
