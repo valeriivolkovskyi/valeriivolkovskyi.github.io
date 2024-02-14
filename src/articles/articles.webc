@@ -1,0 +1,16 @@
+---
+layout: page.webc
+pagination:
+    data: articlesData
+    size: 10
+    alias: article
+title: This is page with articles
+description: Web development blog about architecture, frameworks and disign solutions
+---
+
+<h4>Articles lists</h4>
+<ul>
+    <li webc:for="(item) of articlesData" >
+        <a @attributes="({ href: '/articles/'+ item.properties.Slug.url})" @text="item.properties.name"> </a>
+    </li>
+</ul>

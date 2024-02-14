@@ -1,0 +1,17 @@
+---
+layout: page.webc
+title: This is page with projects
+description: Open source projects
+pagination:
+    data: articlesData
+    size: 10
+    alias: article
+
+---
+
+<h4>Articles lists</h4>
+<ul>
+    <li webc:for="(item) of articlesData" >
+        <a @attributes="({ href: '/articles/'+ item.properties.Slug.url})" @text="item.properties.name"> </a>
+    </li>
+</ul>
