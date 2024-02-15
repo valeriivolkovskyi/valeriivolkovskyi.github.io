@@ -6,7 +6,7 @@ description: Blog about web development and open source projects
 <div>Page contents</div>
 <div>Last articles list right fixed</div>
 <div>Tags Cloud right fixed</div>
-<div @raw="article.content"></div>
+<article @raw="article.content"></article>
 
 <style>
     code {
