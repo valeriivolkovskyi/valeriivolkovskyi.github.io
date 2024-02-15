@@ -1,93 +1,103 @@
 /**
- * @typedef {import("@notionhq/client/build/src/api-endpoints").BlockObjectResponse} BlockObjectResponse
- * @typedef {import("@notionhq/client/build/src/api-endpoints").ImageBlockObjectResponse} ImageBlockObject
- * @typedef {import("@notionhq/client/build/src/api-endpoints").ParagraphBlockObjectResponse} ParagraphBlockObjectResponse
+ * @typedef {import("@notionhq/client/build/src/api-endpoints").BlockObjectResponse} Block
+ * @typedef {import("@notionhq/client/build/src/api-endpoints").ImageBlockObjectResponse} ImageItem
+ * @typedef {import("@notionhq/client/build/src/api-endpoints").ParagraphBlockObjectResponse} ParagraphBlock
  * @typedef {import("@notionhq/client/build/src/api-endpoints").RichTextItemResponse}  RichTextItem
- * @typedef {import("@notionhq/client/build/src/api-endpoints").TextRichTextItemResponse} TextRichTextItemResponse
- * @property {AnnotationResponse} TextRichTextItemResponse.AnnotationResponse
+ * @typedef {import("@notionhq/client/build/src/api-endpoints").TextRichTextItemResponse} TextItem
+ * @typedef {import("@notionhq/client/build/src/api-endpoints").ApiColor} ApiColor
  */
 
 const blockTypeParsers = {
-	/** @param {ParagraphBlockObjectResponse} data */
-	paragraph: (data) => parseRichText(data.paragraph),
+	/** @param {ParagraphBlock} data */
+	paragraph: (data) => parseParagraph(data.paragraph),
 
-	/** @param {ImageBlockObject} data */
+	/** @param {ImageItem} data */
 	image: (data) => {
+		const externalType = "external";
+		const fileType = "file";
+
 		const caption = data.image.caption;
-		return parseTextItem(caption);
+		const file = data.image.file;
 	},
-	bookmark: () => null,
-	breadcrumb: () => null,
-	bulleted_list_item: () => null,
-	callout: () => null,
-	child_database: () => null,
-	child_page: () => null,
-	code: () => null,
-	column_list_and_column: () => null,
-	divider: () => null,
-	embed: () => null,
-	equation: () => null,
-	file: () => null,
-	headings: () => null,
-	link_preview: () => null,
-	mention: () => null,
-	numbered_list_item: () => null,
-	pdf: () => null,
-	quote: () => null,
-	synced_block: () => null,
-	table: () => null,
-	table_of_contents: () => null,
-	template: () => null,
-	to_do: () => null,
-	toggle_blocks: () => null,
-	video: () => null,
+	// bookmark: () => null,
+	// breadcrumb: () => null,
+	// bulleted_list_item: () => null,
+	// callout: () => null,
+	// child_database: () => null,
+	// child_page: () => null,
+	// code: () => null,
+	// column_list_and_column: () => null,
+	// divider: () => null,
+	// embed: () => null,
+	// equation: () => null,
+	// file: () => null,
+	// headings: () => null,
+	// link_preview: () => null,
+	// mention: () => null,
+	// numbered_list_item: () => null,
+	// pdf: () => null,
+	// quote: () => null,
+	// synced_block: () => null,
+	// table: () => null,
+	// table_of_contents: () => null,
+	// template: () => null,
+	// to_do: () => null,
+	// toggle_blocks: () => null,
+	// video: () => null,
 };
 
 /**
- * @param {AnnotationResponse} annotations
- * @param {string} text
+ *
+ * @param {TextItem} textItem
+ * @return {string}
  */
-function addAnnotations(annotations, text) {
-	let annots = text;
+function parseTextItem(textItem) {
+	if (textItem.type !== 'text') {
+		throw new Error('"parseTextItem": Expected type text');
+	}
+	const { href, text, annotations} = textItem;
+	let result = text.content;
 
-	if (annotations.bold) annots = `<b>${annots}</b>`;
-	if (annotations.italic) annots = `<i>${annots}</i>`;
-	if (annotations.strikethrough) annots = `<strike>${annots}</strike>`;
-	if (annotations.underline) annots = `<u>${annots}</u>`;
-	if (annotations.code) annots = `<code>${annots}</code>`;
+	if (href !== '') result = `<a href="${href}">${result}</a>`
+	if (annotations.bold) result = `<b>${result}</b>`;
+	if (annotations.italic) result = `<i>${result}</i>`;
+	if (annotations.strikethrough) result = `<s>${result}</s>`;
+	if (annotations.underline) result = `<u>${result}</u>`;
+	if (annotations.code) result = `<code>${result}</code>`;
 	if (annotations.color !== "default")
-		annots = `<span class="n-color-${annotations.color}">${annots}</span>`;
+		result = `<span class="n-color-${annotations.color}">${result}</span>`;
 
-	return annots;
+	return result;
 }
 
 /**
  *
- * @param {TextRichTextItemResponse} text
- * @return {string}
+ * @param {RichTextItem[]} richText
  */
-function parseTextItem(text) {
-	return addAnnotations(text.annotations, text.text.content);
+function parseRichText(richText) {
+	return richText.map(parseTextItem);
 }
 
 /**
- * @param {{ rich_text: Array<RichTextItemResponse>, color: ApiColor }} paragraph
+ *
+ * @param {{ rich_text: RichTextItem[], color: ApiColor }} paragraph
  * @return {string|null}
  */
-function parseRichText(paragraph) {
+function parseParagraph(paragraph) {
 	if (paragraph.rich_text.length === 0) {
 		return null;
 	}
 
 	const color =
 		paragraph.color !== "default" ? ` class="n-color-${paragraph.color}"` : "";
-	const slices = paragraph.rich_text.map(parseTextItem);
 
-	return `<p${color}>${slices.join("")}</p>`;
+	const text = parseRichText(paragraph.rich_text).join("");
+
+	return `<p${color}>${text}</p>`;
 }
 
 /**
- * @param {BlockObjectResponse} block
+ * @param {Block} block
  * @returns {null|string} - The parsed content as a string, or null if the block type is unsupported.
  */
 function parseBlock(block) {
@@ -100,7 +110,7 @@ function parseBlock(block) {
 
 /**
  *
- * @param {BlockObjectResponse[]} blocks
+ * @param {Block[]} blocks
  * @returns string
  */
 function parseNotionBlocks(blocks) {
