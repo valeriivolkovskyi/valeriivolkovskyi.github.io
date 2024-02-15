@@ -13,13 +13,14 @@
  */
 
 const blockTypeParsers = {
-	paragraph: (data) => parseParagraph(data.paragraph),
-	image: (data) => parseImage(data),
+	bulleted_list_item: (block) =>
+		parseElement("li", `n-${block.type}`, block.bulleted_list_item),
+	paragraph: (block) => parseElement("p", `n-${block.type}`, block.paragraph),
+	heading_1: (block) => parseElement("h1", `n-${block.type}`, block.heading_1),
+	heading_2: (block) => parseElement("h2", `n-${block.type}`, block.heading_2),
+	heading_3: (block) => parseElement("h3", `n-${block.type}`, block.heading_3),
 	code: (block) => parseCodeBlock(block),
-	heading_1: (block) => parseHeadingBlock(block.heading_1),
-	heading_2: (block) => parseHeadingBlock(block.heading_2),
-	heading_3: (block) => parseHeadingBlock(block.heading_3),
-	bulleted_list_item: (block) => parseBulletListItem(block.bulleted_list_item),
+	image: (data) => parseImage(data),
 	divider: () => '<div class="n-divider"></div>',
 	// quote: () => null,
 	// numbered_list_item: () => null,
@@ -44,24 +45,15 @@ const blockTypeParsers = {
 	// template: () => null,
 };
 
-function parseClasses(...args) {
-	return args.filter(Boolean).join(' ').trim();
-}
-
 /**
  *
- * @param {{rich_text: RichTextItem[], color: ApiColor}} item
- * @returns ParseResult
+ * @param {boolean} isToggleable
  */
-function parseBulletListItem(item) {
-	if (item.rich_text.length === 0) return null;
-
-	const text = parseRichText(item.rich_text);
-	const color = getColor(item.color);
-
-	let _class = parseClasses('n-bullet-list-item', color);
-
-	return `<div class="${_class}">${text}</div>`;
+function parseToggleable(isToggleable) {
+	return isToggleable ? "n-toggleable" : "";
+}
+function parseClasses(...args) {
+	return args.filter(Boolean).join(" ").trim();
 }
 /**
  *
@@ -70,7 +62,7 @@ function parseBulletListItem(item) {
 function getColor(color) {
 	if (!color || color === "default") return "";
 
-	return color;
+	return color.replaceAll("/", "-");
 }
 /**
  *
@@ -87,8 +79,10 @@ function parseTextItem(textItem) {
 	if (annotations.strikethrough) result = `<s>${result}</s>`;
 	if (annotations.underline) result = `<u>${result}</u>`;
 	if (annotations.code) result = `<code>${result}</code>`;
-	if (getColor(annotations.color) !== "")
-		result = `<span class="n-color-${annotations.color}">${result}</span>`;
+
+	const color = getColor(annotations.color);
+
+	if (color !== "") result = `<span class="nc-${color}">${result}</span>`;
 
 	return result;
 }
@@ -104,44 +98,24 @@ function parseRichText(richText) {
 
 	return richText.map(parseTextItem).join("");
 }
-/** @param {HeadingItem} heading
- * @returns ParseResult
-*/
-function parseHeadingBlock(heading) {
-	const text = parseRichText(heading.rich_text);
-	if (text === null) {
-		return null;
-	}
-
-	const color = getColor(heading.color);
-	let _class = "";
-
-	if (color !== "") _class = `${_class} ${color}`;
-	if (heading.is_toggleable) _class = `${_class} n-toggleable-heading`;
-
-	return `<h1${_class}>${text}</h1>`;
-}
-/**
- *
- * @param {{ rich_text: RichTextItem[], color: ApiColor }} paragraph
- * @returns ParseResult */
-function parseParagraph(paragraph) {
-	if (paragraph.rich_text.length === 0) {
-		return null;
-	}
-
-	const color =
-		paragraph.color !== "default" ? ` class="n-color-${paragraph.color}"` : "";
-
-	const text = parseRichText(paragraph.rich_text);
-
-	return `<p${color}>${text}</p>`;
-}
-/**
- *
- * @param {ImageItem} imageBlock
+/** @param {HeadingItem | RichTextItem} element
+ * @param {string} tag
+ * @param {string} baseClass
  * @returns ParseResult
  */
+function parseElement(tag, baseClass, element) {
+	if (element.rich_text.length === 0) return null;
+
+	const text = parseRichText(element.rich_text);
+	const _class = parseClasses(
+		baseClass,
+		getColor(element.color),
+		parseToggleable(element.is_toggleable),
+	);
+
+	return `<${tag} class="${_class}">${text}</${tag}>`;
+}
+
 function parseImage(imageBlock) {
 	const { type, caption } = imageBlock.image;
 	const imageFileInfo = imageBlock.image[type];
