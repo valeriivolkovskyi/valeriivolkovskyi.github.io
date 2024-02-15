@@ -1,26 +1,26 @@
 /**
- * @typedef {string | null} ParseResult
- * @typedef {import("@notionhq/client/build/src/api-endpoints").BlockObjectResponse} Block
- * @typedef {import("@notionhq/client/build/src/api-endpoints").ImageBlockObjectResponse} ImageItem
- * @typedef {import("@notionhq/client/build/src/api-endpoints").ParagraphBlockObjectResponse} ParagraphBlock
- * @typedef {import("@notionhq/client/build/src/api-endpoints").RichTextItemResponse}  RichTextItem
- * @typedef {import("@notionhq/client/build/src/api-endpoints").TextRichTextItemResponse} TextItem
- * @typedef {import("@notionhq/client/build/src/api-endpoints").ApiColor} ApiColor
- * @typedef {import("@notionhq/client/build/src/api-endpoints").Heading1BlockObjectResponse} Heading1BlockObjectResponse
- * @typedef {{ rich_text: Array<RichTextItem>, color: ApiColor, is_toggleable: boolean }} HeadingItem
- * @typedef {import("@notionhq/client/build/src/api-endpoints").CodeBlockObjectResponse} CodeBlock
+ * @typedef {string | null} ParsedContent
+ * @typedef {import("@notionhq/client/build/src/api-endpoints").BlockObjectResponse} BlockData
+ * @typedef {import("@notionhq/client/build/src/api-endpoints").ImageBlockObjectResponse} ImageBlockData
+ * @typedef {import("@notionhq/client/build/src/api-endpoints").ParagraphBlockObjectResponse} ParagraphBlockData
+ * @typedef {import("@notionhq/client/build/src/api-endpoints").RichTextItemResponse}  RichTextData
+ * @typedef {import("@notionhq/client/build/src/api-endpoints").TextRichTextItemResponse} TextData
+ * @typedef {import("@notionhq/client/build/src/api-endpoints").ApiColor} ApiColorType
+ * @typedef {import("@notionhq/client/build/src/api-endpoints").Heading1BlockObjectResponse} HeadingBlockData
+ * @typedef {{ rich_text: Array<RichTextData>, color: ApiColorType, is_toggleable: boolean }} HeaderInformation
+ * @typedef {import("@notionhq/client/build/src/api-endpoints").CodeBlockObjectResponse} CodeBlockData
  *
  */
 
-const blockTypeParsers = {
+const blockParsers = {
 	bulleted_list_item: (block) =>
-		parseElement("li", `n-${block.type}`, block.bulleted_list_item),
-	paragraph: (block) => parseElement("p", `n-${block.type}`, block.paragraph),
-	heading_1: (block) => parseElement("h1", `n-${block.type}`, block.heading_1),
-	heading_2: (block) => parseElement("h2", `n-${block.type}`, block.heading_2),
-	heading_3: (block) => parseElement("h3", `n-${block.type}`, block.heading_3),
-	code: (block) => parseCodeBlock(block),
-	image: (data) => parseImage(data),
+		createElement("li", `n-${block.type}`, block.bulleted_list_item),
+	paragraph: (block) => createElement("p", `n-${block.type}`, block.paragraph),
+	heading_1: (block) => createElement("h1", `n-${block.type}`, block.heading_1),
+	heading_2: (block) => createElement("h2", `n-${block.type}`, block.heading_2),
+	heading_3: (block) => createElement("h3", `n-${block.type}`, block.heading_3),
+	code: (block) => createCode(block),
+	image: (data) => createImage(data),
 	divider: () => '<div class="n-divider"></div>',
 	// quote: () => null,
 	// numbered_list_item: () => null,
@@ -52,25 +52,28 @@ const blockTypeParsers = {
 function parseToggleable(isToggleable) {
 	return isToggleable ? "n-toggleable" : "";
 }
+
 function parseClasses(...args) {
 	return args.filter(Boolean).join(" ").trim();
 }
+
 /**
  *
  * @param {string} color
  */
-function getColor(color) {
+function parseColor(color) {
 	if (!color || color === "default") return "";
 
-	return color.replaceAll("/", "-");
+	return color.replaceAll("_", "-");
 }
+
 /**
  *
- * @param {TextItem} textItem
+ * @param {TextData} textData
  * @return {string}
  */
-function parseTextItem(textItem) {
-	const { href, text, annotations } = textItem;
+function createTextElement(textData) {
+	const { href, text, annotations } = textData;
 	let result = text.content;
 
 	if (href !== null) result = `<a href="${href}">${result}</a>`;
@@ -80,69 +83,71 @@ function parseTextItem(textItem) {
 	if (annotations.underline) result = `<u>${result}</u>`;
 	if (annotations.code) result = `<code>${result}</code>`;
 
-	const color = getColor(annotations.color);
+	const color = parseColor(annotations.color);
 
 	if (color !== "") result = `<span class="nc-${color}">${result}</span>`;
 
 	return result;
 }
+
 /**
  *
- * @param {RichTextItem[]} richText
- * @returns ParseResult
+ * @param {RichTextData[]} richText
+ * @returns ParsedContent
  */
-function parseRichText(richText) {
+function createRichText(richText) {
 	if (richText.length === 0) {
 		return null;
 	}
 
-	return richText.map(parseTextItem).join("");
+	return richText.map(createTextElement).join("");
 }
-/** @param {HeadingItem | RichTextItem} element
+
+/**
  * @param {string} tag
  * @param {string} baseClass
- * @returns ParseResult
+ * @param {HeaderInformation | RichTextData} elementData
+ * @returns ParsedContent
  */
-function parseElement(tag, baseClass, element) {
-	if (element.rich_text.length === 0) return null;
+function createElement(tag, baseClass, elementData) {
+	if (elementData.rich_text.length === 0) return null;
 
-	const text = parseRichText(element.rich_text);
-	const _class = parseClasses(
+	const text = createRichText(elementData.rich_text);
+	const classes = parseClasses(
 		baseClass,
-		getColor(element.color),
-		parseToggleable(element.is_toggleable),
+		parseColor(elementData.color),
+		parseToggleable(elementData.is_toggleable),
 	);
 
-	return `<${tag} class="${_class}">${text}</${tag}>`;
+	return `<${tag} class="${classes}">${text}</${tag}>`;
 }
 
 /**
  *
- * @param {ImageItem}imageBlock
- * @return {ParseResult}
+ * @param {ImageBlockData} imageBlockData
+ * @return {ParsedContent}
  */
-function parseImage(imageBlock) {
-	const { type, caption } = imageBlock.image;
-	const imageFileInfo = imageBlock.image[type];
+function createImage(imageBlockData) {
+	const { type, caption } = imageBlockData.image;
+	const imageFileInfo = imageBlockData.image[type];
 	if (imageFileInfo.url.length === 0) return null;
 
 	const src = imageFileInfo.url;
 	const plainAlt = caption.map((text) => text.plain_text).join("");
-	const captionText = parseRichText(caption) || "";
-	const altAttr = ` alt="${plainAlt}"`;
+	const captionText = createRichText(caption) || "";
 
-	return `<div class="n-image"><img src="${src}"${altAttr}><p>${captionText}</p></div>`;
+	return `<div class="n-image"><img src="${src}"alt="${plainAlt}"><p>${captionText}</p></div>`;
 }
 /**
- * @param {CodeBlock} block
- * @return {ParseResult}
+ * @param {CodeBlockData} codeBlockData
+ * @return {ParsedContent}
  */
-function parseCodeBlock(block) {
-	const { rich_text, caption, language } = block.code;
+function createCode(codeBlockData) {
+	const { rich_text, caption, language } = codeBlockData.code;
 	if (rich_text.length === 0) return null;
 
 	const plainTextFromCode = rich_text.map((text) => text.plain_text);
-	const codeCaption = parseRichText(caption);
+	const codeCaption = createRichText(caption);
 	const codeCaptionText =
 		codeCaption && `<p class="n-code-caption">${codeCaption}</p>`;
 
@@ -150,33 +155,25 @@ function parseCodeBlock(block) {
 		codeCaptionText || ""
 	}<code class="n-code-${language}">${plainTextFromCode}</code></div>`;
 }
-/**
- * @param {Block} block
- * @returns {null|string} - The parsed content as a string, or null if the block type is unsupported.
- */
-function parseBlock(block) {
-	const type = block.type;
 
-	if (blockTypeParsers.hasOwnProperty(type)) {
-		return blockTypeParsers[type](block);
-	} else return null;
-}
 /**
  *
- * @param {Block[]} blocks
+ * @param {BlockData[]} blocksData
  * @returns string
  */
-function parseNotionBlocks(blocks) {
+function parseNotionBlocksData(blocksData) {
 	const result = [];
 
-	for (const block of blocks) {
-		const parsed = parseBlock(block);
-		if (parsed !== null) {
-			result.push(parsed);
+	for (const block of blocksData) {
+		if (blockParsers.hasOwnProperty(block.type)) {
+			const html = blockParsers[block.type](block);
+			if (html !== null) {
+				result.push(html);
+			}
 		}
 	}
 
 	return result.join("");
 }
 
-module.exports = parseNotionBlocks;
+module.exports = parseNotionBlocksData;
