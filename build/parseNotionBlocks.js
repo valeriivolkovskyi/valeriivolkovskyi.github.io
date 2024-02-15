@@ -12,13 +12,7 @@ const blockTypeParsers = {
 	paragraph: (data) => parseParagraph(data.paragraph),
 
 	/** @param {ImageItem} data */
-	image: (data) => {
-		const externalType = "external";
-		const fileType = "file";
-
-		const caption = data.image.caption;
-		const file = data.image.file;
-	},
+	image: (data) => parseImage(data),
 	// bookmark: () => null,
 	// breadcrumb: () => null,
 	// bulleted_list_item: () => null,
@@ -58,7 +52,7 @@ function parseTextItem(textItem) {
 	const { href, text, annotations} = textItem;
 	let result = text.content;
 
-	if (href !== '') result = `<a href="${href}">${result}</a>`
+	if (href !== null) result = `<a href="${href}">${result}</a>`
 	if (annotations.bold) result = `<b>${result}</b>`;
 	if (annotations.italic) result = `<i>${result}</i>`;
 	if (annotations.strikethrough) result = `<s>${result}</s>`;
@@ -94,6 +88,22 @@ function parseParagraph(paragraph) {
 	const text = parseRichText(paragraph.rich_text).join("");
 
 	return `<p${color}>${text}</p>`;
+}
+
+/**
+ *
+ * @param {ImageItem} imageBlock
+ */
+function parseImage(imageBlock) {
+  const {type, caption, external, file} = imageBlock.image;
+  const imageTypes = {external, file};
+  let actualImageFile = imageTypes[type];
+
+	const src = actualImageFile.url;
+	const alt = parseRichText(caption);
+
+
+	return `<img src="${src}" alt="${alt}">`
 }
 
 /**
