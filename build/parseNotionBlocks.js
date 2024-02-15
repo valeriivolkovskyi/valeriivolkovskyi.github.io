@@ -11,17 +11,60 @@
  * @typedef {import("@notionhq/client/build/src/api-endpoints").CodeBlockObjectResponse} CodeBlockData
  *
  */
+const mapBlockToTag = (blockType) => {
+	switch (blockType) {
+		case "paragraph":
+			return "p";
+		case "heading_1":
+			return "h1";
+		case "heading_2":
+			return "h2";
+		case "heading_3":
+			return "h3";
+		case "bulleted_list_item":
+			return "li";
+		case "image":
+			return "img";
+		case "divider":
+			return "div";
+		case "code":
+			return "code";
+		default:
+			return "div";
+	}
+};
+
+const PARAMS = {
+	classPrefix: "n",
+};
+
+/**
+ *
+ * @param {BlockData} block
+ * @returns {string}
+ */
+function createRichTextHTMLElement(block) {
+	const type = block.type;
+	const attributes = {
+		classList: parseClasses(block[type], type),
+	};
+
+	return createElement(
+		mapBlockToTag(type),
+		attributes,
+		createRichText(block[type].rich_text),
+	);
+}
 
 const blockParsers = {
-	bulleted_list_item: (block) =>
-		createElement("li", `n-${block.type}`, block.bulleted_list_item),
-	paragraph: (block) => createElement("p", `n-${block.type}`, block.paragraph),
-	heading_1: (block) => createElement("h1", `n-${block.type}`, block.heading_1),
-	heading_2: (block) => createElement("h2", `n-${block.type}`, block.heading_2),
-	heading_3: (block) => createElement("h3", `n-${block.type}`, block.heading_3),
+	bulleted_list_item: (block) => createRichTextHTMLElement(block),
+	paragraph: (block) => createRichTextHTMLElement(block),
+	heading_1: (block) => createRichTextHTMLElement(block),
+	heading_2: (block) => createRichTextHTMLElement(block),
+	heading_3: (block) => createRichTextHTMLElement(block),
 	code: (block) => createCode(block),
 	image: (data) => createImage(data),
-	divider: () => '<div class="n-divider"></div>',
+	divider: () => `<div class="${PARAMS.classPrefix}-divider"></div>`,
 	// quote: () => null,
 	// numbered_list_item: () => null,
 	// toggle_blocks: () => null,
@@ -50,11 +93,18 @@ const blockParsers = {
  * @param {boolean} isToggleable
  */
 function parseToggleable(isToggleable) {
-	return isToggleable ? "n-toggleable" : "";
+	return isToggleable ? "toggleable" : "";
 }
 
-function parseClasses(...args) {
-	return args.filter(Boolean).join(" ").trim();
+function parseClasses(element, type) {
+	const baseClass = type;
+	const color = parseColor(element.color);
+	const toggleable = parseToggleable(element.is_toggleable);
+
+	return [baseClass, color, toggleable]
+		.filter(Boolean)
+		.map((c) => `${PARAMS.classPrefix}-${c.replaceAll("_", "-")}`)
+		.join(" ");
 }
 
 /**
@@ -65,6 +115,17 @@ function parseColor(color) {
 	if (!color || color === "default") return "";
 
 	return color.replaceAll("_", "-");
+}
+
+/**
+ * @param {string} tag
+ * @param {{ classList: string}} attributes
+ * @param {string} children
+ *
+ * @returns ParsedContent
+ */
+function createElement(tag, attributes, children) {
+	return `<${tag} class="${attributes.classList}">${children || ""}</${tag}>`;
 }
 
 /**
@@ -81,7 +142,8 @@ function createTextElement(textData) {
 	if (annotations.italic) result = `<i>${result}</i>`;
 	if (annotations.strikethrough) result = `<s>${result}</s>`;
 	if (annotations.underline) result = `<u>${result}</u>`;
-	if (annotations.code) result = `<code>${result}</code>`;
+	if (annotations.code)
+		result = `<code class="${PARAMS.classPrefix}-incline-code">${result}</code>`;
 
 	const color = parseColor(annotations.color);
 
@@ -96,30 +158,7 @@ function createTextElement(textData) {
  * @returns ParsedContent
  */
 function createRichText(richText) {
-	if (richText.length === 0) {
-		return null;
-	}
-
 	return richText.map(createTextElement).join("");
-}
-
-/**
- * @param {string} tag
- * @param {string} baseClass
- * @param {HeaderInformation | RichTextData} elementData
- * @returns ParsedContent
- */
-function createElement(tag, baseClass, elementData) {
-	if (elementData.rich_text.length === 0) return null;
-
-	const text = createRichText(elementData.rich_text);
-	const classes = parseClasses(
-		baseClass,
-		parseColor(elementData.color),
-		parseToggleable(elementData.is_toggleable),
-	);
-
-	return `<${tag} class="${classes}">${text}</${tag}>`;
 }
 
 /**
@@ -133,27 +172,34 @@ function createImage(imageBlockData) {
 	if (imageFileInfo.url.length === 0) return null;
 
 	const src = imageFileInfo.url;
-	const plainAlt = caption.map((text) => text.plain_text).join("");
-	const captionText = createRichText(caption) || "";
+	const alt = caption.map((text) => text.plain_text).join("");
+	const captionText = createRichText(caption);
 
-	return `<div class="n-image"><img src="${src}"alt="${plainAlt}"><p>${captionText}</p></div>`;
+	// todo: captionText should be optional;
+
+	return `<div class="n-image"><img src="${src}"alt="${alt}"><p>${captionText}</p></div>`;
 }
+
 /**
  * @param {CodeBlockData} codeBlockData
  * @return {ParsedContent}
  */
 function createCode(codeBlockData) {
 	const { rich_text, caption, language } = codeBlockData.code;
-	if (rich_text.length === 0) return null;
 
-	const plainTextFromCode = rich_text.map((text) => text.plain_text);
+	const plainTextFromCode = rich_text.map((text) => text.plain_text).join("");
 	const codeCaption = createRichText(caption);
-	const codeCaptionText =
-		codeCaption && `<p class="n-code-caption">${codeCaption}</p>`;
 
-	return `<div class="n-code">${
-		codeCaptionText || ""
-	}<code class="n-code-${language}">${plainTextFromCode}</code></div>`;
+	return `
+    <div class="${PARAMS.classPrefix}-code">
+      ${
+				codeCaption
+					? `<p class="${PARAMS.classPrefix}-code-caption">${codeCaption}</p>`
+					: ""
+			}
+      <code class="${PARAMS.classPrefix}-code-${language}">${plainTextFromCode}</code>
+    </div>
+  `;
 }
 
 /**
@@ -170,6 +216,9 @@ function parseNotionBlocksData(blocksData) {
 			if (html !== null) {
 				result.push(html);
 			}
+		} else {
+			// throw new Error(`Unsupported block type: ${block.type}`)
+			console.log(`Unsupported block type: ${block.type}`);
 		}
 	}
 
