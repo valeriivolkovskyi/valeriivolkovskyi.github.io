@@ -116,6 +116,11 @@ function parseElement(tag, baseClass, element) {
 	return `<${tag} class="${_class}">${text}</${tag}>`;
 }
 
+/**
+ *
+ * @param {ImageItem}imageBlock
+ * @return {ParseResult}
+ */
 function parseImage(imageBlock) {
 	const { type, caption } = imageBlock.image;
 	const imageFileInfo = imageBlock.image[type];
