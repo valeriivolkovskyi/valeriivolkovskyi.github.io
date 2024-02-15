@@ -1,4 +1,5 @@
 /**
+ * @typedef {string | null} ParseResult
  * @typedef {import("@notionhq/client/build/src/api-endpoints").BlockObjectResponse} Block
  * @typedef {import("@notionhq/client/build/src/api-endpoints").ImageBlockObjectResponse} ImageItem
  * @typedef {import("@notionhq/client/build/src/api-endpoints").ParagraphBlockObjectResponse} ParagraphBlock
@@ -18,13 +19,13 @@ const blockTypeParsers = {
 	heading_1: (block) => parseHeadingBlock(block.heading_1),
 	heading_2: (block) => parseHeadingBlock(block.heading_2),
 	heading_3: (block) => parseHeadingBlock(block.heading_3),
+	bulleted_list_item: (block) => parseBulletListItem(block.bulleted_list_item),
+	divider: () => '<div class="n-divider"></div>',
 	// quote: () => null,
-	// bulleted_list_item: () => null,
 	// numbered_list_item: () => null,
 	// toggle_blocks: () => null,
 	// column_list_and_column: () => null,
 	// callout: () => null,
-	// divider: () => null,
 	// to_do: () => null,
 	// video: () => null,
 	// child_database: () => null,
@@ -43,6 +44,25 @@ const blockTypeParsers = {
 	// template: () => null,
 };
 
+function parseClasses(...args) {
+	return args.filter(Boolean).join(' ').trim();
+}
+
+/**
+ *
+ * @param {{rich_text: RichTextItem[], color: ApiColor}} item
+ * @returns ParseResult
+ */
+function parseBulletListItem(item) {
+	if (item.rich_text.length === 0) return null;
+
+	const text = parseRichText(item.rich_text);
+	const color = getColor(item.color);
+
+	let _class = parseClasses('n-bullet-list-item', color);
+
+	return `<div class="${_class}">${text}</div>`;
+}
 /**
  *
  * @param {string} color
@@ -52,16 +72,12 @@ function getColor(color) {
 
 	return color;
 }
-
 /**
  *
  * @param {TextItem} textItem
  * @return {string}
  */
 function parseTextItem(textItem) {
-	if (textItem.type !== "text") {
-		throw new Error('"parseTextItem": Expected type text');
-	}
 	const { href, text, annotations } = textItem;
 	let result = text.content;
 
@@ -79,6 +95,7 @@ function parseTextItem(textItem) {
 /**
  *
  * @param {RichTextItem[]} richText
+ * @returns ParseResult
  */
 function parseRichText(richText) {
 	if (richText.length === 0) {
@@ -87,7 +104,9 @@ function parseRichText(richText) {
 
 	return richText.map(parseTextItem).join("");
 }
-/** @param {HeadingItem} heading  */
+/** @param {HeadingItem} heading
+ * @returns ParseResult
+*/
 function parseHeadingBlock(heading) {
 	const text = parseRichText(heading.rich_text);
 	if (text === null) {
@@ -105,8 +124,7 @@ function parseHeadingBlock(heading) {
 /**
  *
  * @param {{ rich_text: RichTextItem[], color: ApiColor }} paragraph
- * @return {string|null}
- */
+ * @returns ParseResult */
 function parseParagraph(paragraph) {
 	if (paragraph.rich_text.length === 0) {
 		return null;
@@ -119,14 +137,16 @@ function parseParagraph(paragraph) {
 
 	return `<p${color}>${text}</p>`;
 }
-
 /**
  *
  * @param {ImageItem} imageBlock
+ * @returns ParseResult
  */
 function parseImage(imageBlock) {
 	const { type, caption } = imageBlock.image;
 	const imageFileInfo = imageBlock.image[type];
+	if (imageFileInfo.url.length === 0) return null;
+
 	const src = imageFileInfo.url;
 	const plainAlt = caption.map((text) => text.plain_text).join("");
 	const captionText = parseRichText(caption) || "";
@@ -136,15 +156,20 @@ function parseImage(imageBlock) {
 }
 /**
  * @param {CodeBlock} block
+ * @return {ParseResult}
  */
 function parseCodeBlock(block) {
 	const { rich_text, caption, language } = block.code;
+	if (rich_text.length === 0) return null;
+
 	const plainTextFromCode = rich_text.map((text) => text.plain_text);
 	const codeCaption = parseRichText(caption);
 	const codeCaptionText =
 		codeCaption && `<p class="n-code-caption">${codeCaption}</p>`;
 
-	return `<div class="n-code">${codeCaptionText || ""}<code class="n-code-${language}">${plainTextFromCode}</code></div>`;
+	return `<div class="n-code">${
+		codeCaptionText || ""
+	}<code class="n-code-${language}">${plainTextFromCode}</code></div>`;
 }
 /**
  * @param {Block} block
