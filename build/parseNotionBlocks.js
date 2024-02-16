@@ -9,6 +9,7 @@
  * @typedef {import("@notionhq/client/build/src/api-endpoints").Heading1BlockObjectResponse} HeadingBlockData
  * @typedef {{ rich_text: Array<RichTextData>, color: ApiColorType, is_toggleable: boolean }} HeaderInformation
  * @typedef {import("@notionhq/client/build/src/api-endpoints").CodeBlockObjectResponse} CodeBlockData
+ * @typedef {import("@notionhq/client/build/src/api-endpoints").ListBlockChildrenResponse} ListBlockChildrenResponse
  *
  */
 const mapBlockToTag = (blockType) => {
@@ -225,4 +226,11 @@ function parseNotionBlocksData(blocksData) {
 	return result.join("");
 }
 
-module.exports = parseNotionBlocksData;
+/**
+ * @param {ListBlockChildrenResponse} page
+ */
+function parseNotionPage(page) {
+	return parseNotionBlocksData(page.results);
+}
+
+module.exports = parseNotionPage;

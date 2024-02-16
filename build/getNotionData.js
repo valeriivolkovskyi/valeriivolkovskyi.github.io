@@ -44,7 +44,15 @@ async function getPages() {
  */
 async function getPageBlocks(id) {
 	try {
-		return await notion.blocks.children.list({ block_id: id });
+		const pageBlocks = await notion.blocks.children.list({ block_id: id });
+
+		for (const block of pageBlocks.results) {
+			if (block.has_children) {
+				block.children = await getPageBlocks(block.id);
+			}
+		}
+
+		return pageBlocks;
 	} catch (err) {
 		console.log(err);
 		throw new Error(`Can't fetch page: ${id}`);
@@ -91,7 +99,7 @@ function generateJSON(data) {
 	const tagsFilePath = path.resolve(dirPath, "./tagsData.json");
 
 	// for debug
-	// writeToFile(path.resolve(dirPath, "./_debug_data.json"), data);
+	writeToFile(path.resolve(dirPath, "./_debug_data.json"), data);
 
 	const { articles, projects, tags } = mapNotionData(data);
 

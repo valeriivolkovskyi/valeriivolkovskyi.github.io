@@ -2,7 +2,7 @@
  * @typedef {import("@notionhq/client/build/src/api-endpoints").BlockObjectResponse} BlockObjectResponse
  */
 
-const parseNotionBlocks = require("./parseNotionBlocks");
+const parseNotionPage = require("./parseNotionBlocks");
 
 function getPlainText(data) {
 	return data[0]["plain_text"];
@@ -30,7 +30,7 @@ module.exports = function (data) {
 			tags: properties["Tags"]["multi_select"].map(mapTags),
 			date: properties["Date"]["date"]["start"],
 			slug: properties["Slug"]["url"],
-			content: parseNotionBlocks(page["blocks"]["results"]),
+			content: parseNotionPage(page["blocks"]),
 		};
 
 		if (properties["Type"]["select"]["name"] === "Project") {
