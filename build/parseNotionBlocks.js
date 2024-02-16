@@ -10,8 +10,13 @@
  * @typedef {{ rich_text: Array<RichTextData>, color: ApiColorType, is_toggleable: boolean }} HeaderInformation
  * @typedef {import("@notionhq/client/build/src/api-endpoints").CodeBlockObjectResponse} CodeBlockData
  * @typedef {import("@notionhq/client/build/src/api-endpoints").ListBlockChildrenResponse} ListBlockChildrenResponse
+ * @typedef {import("@notionhq/client/build/src/api-endpoints").PartialBlockObjectResponse} PartialBlockObjectResponse
  *
  */
+
+const {createElement} = require("react");
+const ReactDOM = require("react-dom/server");
+
 const mapBlockToTag = (blockType) => {
 	switch (blockType) {
 		case "paragraph":
@@ -42,30 +47,41 @@ const PARAMS = {
 /**
  *
  * @param {BlockData} block
- * @returns {string}
  */
 function createRichTextHTMLElement(block) {
 	const type = block.type;
 	const attributes = {
-		classList: parseClasses(block[type], type),
+		className: parseClasses(block[type], type),
 	};
 
-	return createElement(
+	const element = createElement(
 		mapBlockToTag(type),
 		attributes,
 		createRichText(block[type].rich_text),
 	);
+
+	const result = {
+		type,
+		component: element,
+		children: null,
+	};
+
+	if (block.has_children) {
+		result.children = processBlockList(block.children);
+	}
+
+	return result;
 }
 
-const blockParsers = {
+const blockTransformers = {
 	bulleted_list_item: (block) => createRichTextHTMLElement(block),
 	paragraph: (block) => createRichTextHTMLElement(block),
 	heading_1: (block) => createRichTextHTMLElement(block),
 	heading_2: (block) => createRichTextHTMLElement(block),
 	heading_3: (block) => createRichTextHTMLElement(block),
-	code: (block) => createCode(block),
-	image: (data) => createImage(data),
-	divider: () => `<div class="${PARAMS.classPrefix}-divider"></div>`,
+	code: (block) => createCodeElement(block),
+	image: (data) => createImageElement(data),
+	// divider: () => `<div class="${PARAMS.classPrefix}-divider"></div>`,
 	// quote: () => null,
 	// numbered_list_item: () => null,
 	// toggle_blocks: () => null,
@@ -119,37 +135,45 @@ function parseColor(color) {
 }
 
 /**
- * @param {string} tag
- * @param {{ classList: string}} attributes
- * @param {string} children
- *
- * @returns ParsedContent
- */
-function createElement(tag, attributes, children) {
-	return `<${tag} class="${attributes.classList}">${children || ""}</${tag}>`;
-}
-
-/**
  *
  * @param {TextData} textData
- * @return {string}
+ * @return {React.Element}
  */
 function createTextElement(textData) {
 	const { href, text, annotations } = textData;
 	let result = text.content;
-
-	if (href !== null) result = `<a href="${href}">${result}</a>`;
-	if (annotations.bold) result = `<b>${result}</b>`;
-	if (annotations.italic) result = `<i>${result}</i>`;
-	if (annotations.strikethrough) result = `<s>${result}</s>`;
-	if (annotations.underline) result = `<u>${result}</u>`;
-	if (annotations.code)
-		result = `<code class="${PARAMS.classPrefix}-incline-code">${result}</code>`;
-
-	const color = parseColor(annotations.color);
-
-	if (color !== "") result = `<span class="nc-${color}">${result}</span>`;
-
+	const transformers = [
+		(content) =>
+			href !== null ? createElement("a", { href }, content) : content,
+		(content) =>
+			annotations.bold ? createElement("b", {}, content) : content,
+		(content) =>
+			annotations.italic ? createElement("i", {}, content) : content,
+		(content) =>
+			annotations.strikethrough
+				? createElement("s", {}, content)
+				: content,
+		(content) =>
+			annotations.underline ? createElement("u", {}, content) : content,
+		(content) =>
+			annotations.code
+				? createElement(
+						"code",
+						{ className: `${PARAMS.classPrefix}-inline-code` },
+						content,
+				  )
+				: content,
+		// Adjusted to add possible handling of an undefined color.
+		(content) => {
+			const color = annotations.color ? parseColor(annotations.color) : "";
+			return color !== ""
+				? createElement("span", { className: `nc-${color}` }, content)
+				: content;
+		},
+	];
+	transformers.forEach((transform) => {
+		result = transform(result);
+	});
 	return result;
 }
 
@@ -159,7 +183,7 @@ function createTextElement(textData) {
  * @returns ParsedContent
  */
 function createRichText(richText) {
-	return richText.map(createTextElement).join("");
+	return richText.map(createTextElement);
 }
 
 /**
@@ -167,7 +191,7 @@ function createRichText(richText) {
  * @param {ImageBlockData} imageBlockData
  * @return {ParsedContent}
  */
-function createImage(imageBlockData) {
+function createImageElement(imageBlockData) {
 	const { type, caption } = imageBlockData.image;
 	const imageFileInfo = imageBlockData.image[type];
 	if (imageFileInfo.url.length === 0) return null;
@@ -176,46 +200,57 @@ function createImage(imageBlockData) {
 	const alt = caption.map((text) => text.plain_text).join("");
 	const captionText = createRichText(caption);
 
-	// todo: captionText should be optional;
+	const component = createElement("div", { className: "n-image" }, [
+		createElement("img", { src, alt }, null),
+		createElement("p", null, captionText),
+	]);
 
-	return `<div class="n-image"><img src="${src}"alt="${alt}"><p>${captionText}</p></div>`;
+	return { component };
 }
 
 /**
  * @param {CodeBlockData} codeBlockData
  * @return {ParsedContent}
  */
-function createCode(codeBlockData) {
+function createCodeElement(codeBlockData) {
 	const { rich_text, caption, language } = codeBlockData.code;
 
 	const plainTextFromCode = rich_text.map((text) => text.plain_text).join("");
 	const codeCaption = createRichText(caption);
 
-	return `
-    <div class="${PARAMS.classPrefix}-code">
-      ${
-				codeCaption
-					? `<p class="${PARAMS.classPrefix}-code-caption">${codeCaption}</p>`
-					: ""
-			}
-      <code class="${PARAMS.classPrefix}-code-${language}">${plainTextFromCode}</code>
-    </div>
-  `;
+	const component = createElement(
+		"div",
+		{ className: `${PARAMS.classPrefix}-code` },
+		[
+			codeCaption &&
+				createElement(
+					"p",
+					{ className: `${PARAMS.classPrefix}-code-caption` },
+					codeCaption,
+				),
+			createElement(
+				"code",
+				{ className: `${PARAMS.classPrefix}-code-${language}` },
+				plainTextFromCode,
+			),
+		],
+	);
+
+	return { component };
 }
 
 /**
- *
- * @param {BlockData[]} blocksData
- * @returns string
+ * @param {Array<PartialBlockObjectResponse | BlockObjectResponse>} blocks
  */
-function parseNotionBlocksData(blocksData) {
-	const result = [];
+function processBlockContent(blocks) {
+	const HTMLElements = [];
 
-	for (const block of blocksData) {
-		if (blockParsers.hasOwnProperty(block.type)) {
-			const html = blockParsers[block.type](block);
-			if (html !== null) {
-				result.push(html);
+	for (const block of blocks) {
+		if (blockTransformers.hasOwnProperty(block.type)) {
+			const element = blockTransformers[block.type](block);
+
+			if (element !== null) {
+				HTMLElements.push(element);
 			}
 		} else {
 			// throw new Error(`Unsupported block type: ${block.type}`)
@@ -223,14 +258,33 @@ function parseNotionBlocksData(blocksData) {
 		}
 	}
 
-	return result.join("");
+	return HTMLElements.map((element) => {
+		const type = element.type;
+
+		if (element.children !== null) {
+			return createElement("div", { className: "parent" }, [
+				element.component,
+				element.children,
+			]);
+		} else {
+			return element.component;
+		}
+	});
 }
 
 /**
  * @param {ListBlockChildrenResponse} page
  */
-function parseNotionPage(page) {
-	return parseNotionBlocksData(page.results);
+function processBlockList(page) {
+	return processBlockContent(page.results);
 }
 
-module.exports = parseNotionPage;
+/**
+ * @param {ListBlockChildrenResponse} page
+ */
+function renderToString(page) {
+	const res = processBlockList(page);
+	return ReactDOM.renderToString(res);
+}
+
+module.exports = renderToString;

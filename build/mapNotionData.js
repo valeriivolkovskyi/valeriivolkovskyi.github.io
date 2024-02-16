@@ -1,5 +1,6 @@
 /**
  * @typedef {import("@notionhq/client/build/src/api-endpoints").BlockObjectResponse} BlockObjectResponse
+ * @typedef {import("@notionhq/client/build/src/api-endpoints").ListBlockChildrenResponse} ListBlockChildrenResponse
  */
 
 const parseNotionPage = require("./parseNotionBlocks");
@@ -9,9 +10,7 @@ function getPlainText(data) {
 }
 
 /**
- *
- * @param {BlockObjectResponse} data
- * @return {{projects: *[], articles: *[], tags: *[]}}
+ * @param {{ blocks: ListBlockChildrenResponse}[]} data
  */
 module.exports = function (data) {
 	const articles = [];
@@ -30,7 +29,7 @@ module.exports = function (data) {
 			tags: properties["Tags"]["multi_select"].map(mapTags),
 			date: properties["Date"]["date"]["start"],
 			slug: properties["Slug"]["url"],
-			content: parseNotionPage(page["blocks"]),
+			content: parseNotionPage(page.blocks),
 		};
 
 		if (properties["Type"]["select"]["name"] === "Project") {

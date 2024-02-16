@@ -99,7 +99,7 @@ function generateJSON(data) {
 	const tagsFilePath = path.resolve(dirPath, "./tagsData.json");
 
 	// for debug
-	writeToFile(path.resolve(dirPath, "./_debug_data.json"), data);
+	// writeToFile(path.resolve(dirPath, "./_debug_data.json"), data);
 
 	const { articles, projects, tags } = mapNotionData(data);
 
