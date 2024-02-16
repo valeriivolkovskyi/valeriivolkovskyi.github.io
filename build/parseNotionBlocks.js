@@ -110,7 +110,7 @@ const blockTransformers = {
  * @param {boolean} isToggleable
  */
 function parseToggleable(isToggleable) {
-	return isToggleable ? "toggleable" : "";
+	return isToggleable ? ["toggleable", 'toggleable-closed'] : [""];
 }
 
 function parseClasses(element, type) {
@@ -118,7 +118,7 @@ function parseClasses(element, type) {
 	const color = parseColor(element.color);
 	const toggleable = parseToggleable(element.is_toggleable);
 
-	return [baseClass, color, toggleable]
+	return [baseClass, color, ...toggleable]
 		.filter(Boolean)
 		.map((c) => `${PARAMS.classPrefix}-${c.replaceAll("_", "-")}`)
 		.join(" ");
@@ -261,7 +261,7 @@ function processBlockContent(blocks) {
 	return HTMLElements.map((element) => {
 		const type = element.type;
 
-		if (element.children !== null) {
+		if (!!element.children) {
 			return createElement("div", { className: "parent" }, [
 				element.component,
 				element.children,
