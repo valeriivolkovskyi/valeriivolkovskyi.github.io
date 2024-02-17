@@ -14,8 +14,7 @@
  *
  */
 
-const {createElement} = require("react");
-const ReactDOM = require("react-dom/server");
+const { createElement, renderToString } = require("./rendering");
 
 const mapBlockToTag = (blockType) => {
 	switch (blockType) {
@@ -110,7 +109,7 @@ const blockTransformers = {
  * @param {boolean} isToggleable
  */
 function parseToggleable(isToggleable) {
-	return isToggleable ? ["toggleable", 'toggleable-closed'] : [""];
+	return isToggleable ? ["toggleable", "toggleable-closed"] : [""];
 }
 
 function parseClasses(element, type) {
@@ -145,14 +144,11 @@ function createTextElement(textData) {
 	const transformers = [
 		(content) =>
 			href !== null ? createElement("a", { href }, content) : content,
-		(content) =>
-			annotations.bold ? createElement("b", {}, content) : content,
+		(content) => (annotations.bold ? createElement("b", {}, content) : content),
 		(content) =>
 			annotations.italic ? createElement("i", {}, content) : content,
 		(content) =>
-			annotations.strikethrough
-				? createElement("s", {}, content)
-				: content,
+			annotations.strikethrough ? createElement("s", {}, content) : content,
 		(content) =>
 			annotations.underline ? createElement("u", {}, content) : content,
 		(content) =>
@@ -202,7 +198,7 @@ function createImageElement(imageBlockData) {
 
 	const component = createElement("div", { className: "n-image" }, [
 		createElement("img", { src, alt }, null),
-		createElement("p", null, captionText),
+		createElement("p", {}, captionText),
 	]);
 
 	return { component };
@@ -282,9 +278,9 @@ function processBlockList(page) {
 /**
  * @param {ListBlockChildrenResponse} page
  */
-function renderToString(page) {
+function render(page) {
 	const res = processBlockList(page);
-	return ReactDOM.renderToString(res);
+	return renderToString(res);
 }
 
-module.exports = renderToString;
+module.exports = render;
