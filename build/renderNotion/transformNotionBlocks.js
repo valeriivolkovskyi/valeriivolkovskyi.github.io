@@ -118,6 +118,11 @@ function createRichTextHTMLElement(block) {
 	const content = createRichText(block[type].rich_text);
 	const children = block.has_children ? getChildren(block) : null;
 
+	if ((type === t.heading_1 || type === t.heading_2 || type === t.heading_3) && block.has_children) {
+		const heading = createElement(HTMLTag, { className }, content);
+		return createElement('div', {className: `${PARAMS.classPrefix}-toggle-heading`}, ...[heading, children])
+	}
+
 	return createElement(HTMLTag, { className }, content, children);
 }
 
@@ -161,15 +166,14 @@ function processBlockContent(blocks) {
 					right++;
 				}
 
-				element = createElement(block.type === t.bulleted_list_item ? 'ul' : 'ol', {}, siblings);
+				element = createElement(block.type === t.bulleted_list_item ? 'ul' : 'ol', {
+					className: `${PARAMS.classPrefix}-${block.type}`
+				}, ...siblings);
 			}
 
 			if (element !== null) {
 				HTMLElements.push(element);
 			}
-		} else {
-			// throw new Error(`Unsupported block type: ${block.type}`)
-			console.log(`Unsupported block type: ${block.type}`);
 		}
 	}
 
