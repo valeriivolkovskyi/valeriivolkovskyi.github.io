@@ -11,6 +11,9 @@
  * @typedef {import("@notionhq/client/build/src/api-endpoints").CodeBlockObjectResponse} CodeBlockData
  * @typedef {import("@notionhq/client/build/src/api-endpoints").ListBlockChildrenResponse} ListBlockChildrenResponse
  * @typedef {import("@notionhq/client/build/src/api-endpoints").PartialBlockObjectResponse} PartialBlockObjectResponse
+ * @typedef {import("@notionhq/client/build/src/api-endpoints").ColumnListBlockObjectResponse} Column
+ * @typedef {import("@notionhq/client/build/src/api-endpoints").ColumnBlockObjectResponse} ColumnBlock
+ * @typedef {import("@notionhq/client/build/src/api-endpoints").TableBlockObjectResponse} Table
  *
  */
 
@@ -35,11 +38,16 @@ const blockTransformers = {
 	[t.numbered_list_item]: (block) => createRichTextHTMLElement(block),
 	[t.quote]: (block) => createRichTextHTMLElement(block),
 	[t.toggle]: (block) => createRichTextHTMLElement(block),
-  [t.callout]: (block) => createRichTextHTMLElement(block),
-	// [t.table]: (block) => createRichTextHTMLElement(block),
-	// [t.column_list_and_column]: () => null,
-	// [t.to_do]: () => null,
+	[t.callout]: (block) => createRichTextHTMLElement(block),
+	[t.table]: (block) => createTable(block),
+	[t.table_of_contents]: (block) => null,
+	[t.column]: (block) => {
+		console.log("****** Column", block);
+		return null;
+	},
+	[t.column_list]: (block) => createColumn(block.children),
 	// [t.video]: () => null,
+	// [t.to_do]: () => null,
 	// [t.child_database]: () => null,
 	// [t.bookmark]: () => null,
 	// [t.breadcrumb]: () => null,
@@ -51,9 +59,46 @@ const blockTransformers = {
 	// [t.mention]: () => null,
 	// [t.pdf]: () => null,
 	// [t.synced_block]: () => null,
-	// [t.table_of_contents]: () => null,
-	// [t.template]: () => null,
 };
+
+/**
+ *
+ * @param { ColumnBlock } data
+ * @return {Element | null}
+ */
+function createColumn(data) {
+		data.results;
+}
+
+/**
+ *
+ * @param {Table} block
+ * @return {Element|null}
+ */
+function createTable(block) {
+	const { table, children } = block;
+	const rows = children.results;
+	const {has_column_header, has_row_header} = table
+	if (!rows.length) return null;
+
+	let props = {};
+
+	if (has_column_header || has_row_header) {
+		props.className = `${PARAMS.classPrefix}-${has_column_header ? 'column-header' : 'row-header'}`;
+	}
+
+	const tableRows = rows.map((block, index) => {
+		const cells = block.table_row.cells.map((cell) => {
+			const textContent = createRichText(cell);
+			return createElement('td', {}, textContent);
+		});
+
+		return createElement('tr', {}, cells);
+	});
+
+	return createElement('table', props, tableRows);
+}
+
 /**
  *
  * @param {ImageBlockData} imageBlockData
@@ -118,16 +163,22 @@ function createRichTextHTMLElement(block) {
 	const content = createRichText(block[type].rich_text);
 	const children = block.has_children ? getChildren(block) : null;
 
-	if ((type === t.heading_1 || type === t.heading_2 || type === t.heading_3) && block.has_children) {
+	if (
+		(type === t.heading_1 || type === t.heading_2 || type === t.heading_3) &&
+		block.has_children
+	) {
 		const heading = createElement(HTMLTag, { className }, content);
-		return createElement('div', {className: `${PARAMS.classPrefix}-toggle-heading`}, ...[heading, children])
+		return createElement(
+			"div",
+			{ className: `${PARAMS.classPrefix}-toggle-heading` },
+			...[heading, children],
+		);
 	}
 
 	if (type === t.callout) {
 		const icon = block.callout.icon.emoji;
 		if (icon) {
 			return createElement(HTMLTag, { className }, icon, content, children);
-
 		}
 	}
 
@@ -174,9 +225,13 @@ function processBlockContent(blocks) {
 					right++;
 				}
 
-				element = createElement(block.type === t.bulleted_list_item ? 'ul' : 'ol', {
-					className: `${PARAMS.classPrefix}-${block.type}`
-				}, ...siblings);
+				element = createElement(
+					block.type === t.bulleted_list_item ? "ul" : "ol",
+					{
+						className: `${PARAMS.classPrefix}-${block.type}`,
+					},
+					...siblings,
+				);
 			}
 
 			if (element !== null) {

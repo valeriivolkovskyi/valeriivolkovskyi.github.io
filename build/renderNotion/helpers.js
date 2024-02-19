@@ -1,8 +1,6 @@
 const { createElement } = require("./rendering");
 const { PARAMS } = require("./params");
-const types = require('./blockTypes');
-
-
+const types = require("./blockTypes");
 
 const mapBlockToTag = (blockType) => {
 	switch (blockType) {
@@ -25,7 +23,7 @@ const mapBlockToTag = (blockType) => {
 		case types.code:
 			return "code";
 		case types.quote:
-				return "blockquote"
+			return "blockquote";
 		default:
 			return "div";
 	}
