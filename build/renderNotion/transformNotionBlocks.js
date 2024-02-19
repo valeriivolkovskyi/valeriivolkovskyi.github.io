@@ -35,8 +35,8 @@ const blockTransformers = {
 	[t.numbered_list_item]: (block) => createRichTextHTMLElement(block),
 	[t.quote]: (block) => createRichTextHTMLElement(block),
 	[t.toggle]: (block) => createRichTextHTMLElement(block),
+  [t.callout]: (block) => createRichTextHTMLElement(block),
 	// [t.table]: (block) => createRichTextHTMLElement(block),
-	// [t.callout]: () => null,
 	// [t.column_list_and_column]: () => null,
 	// [t.to_do]: () => null,
 	// [t.video]: () => null,
@@ -121,6 +121,14 @@ function createRichTextHTMLElement(block) {
 	if ((type === t.heading_1 || type === t.heading_2 || type === t.heading_3) && block.has_children) {
 		const heading = createElement(HTMLTag, { className }, content);
 		return createElement('div', {className: `${PARAMS.classPrefix}-toggle-heading`}, ...[heading, children])
+	}
+
+	if (type === t.callout) {
+		const icon = block.callout.icon.emoji;
+		if (icon) {
+			return createElement(HTMLTag, { className }, icon, content, children);
+
+		}
 	}
 
 	return createElement(HTMLTag, { className }, content, children);
