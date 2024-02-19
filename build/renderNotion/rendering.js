@@ -73,6 +73,7 @@ const renderToString = (element) => {
 		"area",
 		"base",
 		"br",
+		"hr",
 		"col",
 		"command",
 		"embed",

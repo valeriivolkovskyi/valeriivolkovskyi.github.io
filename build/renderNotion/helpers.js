@@ -1,24 +1,31 @@
 const { createElement } = require("./rendering");
 const { PARAMS } = require("./params");
+const types = require('./blockTypes');
+
+
 
 const mapBlockToTag = (blockType) => {
 	switch (blockType) {
-		case "paragraph":
+		case types.paragraph:
 			return "p";
-		case "heading_1":
+		case types.heading_1:
 			return "h1";
-		case "heading_2":
+		case types.heading_2:
 			return "h2";
-		case "heading_3":
+		case types.heading_3:
 			return "h3";
-		case "bulleted_list_item":
+		case types.bulleted_list_item:
 			return "li";
-		case "image":
+		case types.numbered_list_item:
+			return "li";
+		case types.image:
 			return "img";
-		case "divider":
+		case types.divider:
 			return "div";
-		case "code":
+		case types.code:
 			return "code";
+		case types.quote:
+				return "blockquote"
 		default:
 			return "div";
 	}

@@ -23,22 +23,21 @@ const {
 	createAnnotatedTextElement,
 } = require("./helpers");
 
-
 const blockTransformers = {
+	[t.divider]: () => createElement("hr", { className: "divider" }, null),
+	[t.code]: (block) => createCodeElement(block),
+	[t.image]: (data) => createImageElement(data),
 	[t.bulleted_list_item]: (block) => createRichTextHTMLElement(block),
 	[t.paragraph]: (block) => createRichTextHTMLElement(block),
 	[t.heading_1]: (block) => createRichTextHTMLElement(block),
 	[t.heading_2]: (block) => createRichTextHTMLElement(block),
 	[t.heading_3]: (block) => createRichTextHTMLElement(block),
-
-	[t.code]: (block) => createCodeElement(block),
-	[t.image]: (data) => createImageElement(data),
-	// [t.divider]: () => `<div class="${PARAMS.classPrefix}-divider"></div>`,
-	// [t.quote]: () => null,
-	// [t.numbered_list_item]: () => null,
-	// [t.toggle_blocks]: () => null,
-	// [t.column_list_and_column]: () => null,
+	[t.numbered_list_item]: (block) => createRichTextHTMLElement(block),
+	[t.quote]: (block) => createRichTextHTMLElement(block),
+	[t.toggle]: (block) => createRichTextHTMLElement(block),
+	// [t.table]: (block) => createRichTextHTMLElement(block),
 	// [t.callout]: () => null,
+	// [t.column_list_and_column]: () => null,
 	// [t.to_do]: () => null,
 	// [t.video]: () => null,
 	// [t.child_database]: () => null,
@@ -52,7 +51,6 @@ const blockTransformers = {
 	// [t.mention]: () => null,
 	// [t.pdf]: () => null,
 	// [t.synced_block]: () => null,
-	// [t.table]: () => null,
 	// [t.table_of_contents]: () => null,
 	// [t.template]: () => null,
 };
@@ -116,11 +114,11 @@ function getChildren(block) {
 function createRichTextHTMLElement(block) {
 	const type = block.type;
 	const HTMLTag = mapBlockToTag(type);
-	const className =  parseClasses(block[type], type);
+	const className = parseClasses(block[type], type);
 	const content = createRichText(block[type].rich_text);
 	const children = block.has_children ? getChildren(block) : null;
 
-	return createElement(HTMLTag, {className }, content, children);
+	return createElement(HTMLTag, { className }, content, children);
 }
 
 /**
@@ -163,7 +161,7 @@ function processBlockContent(blocks) {
 					right++;
 				}
 
-				element = createElement("ul", {}, siblings);
+				element = createElement(block.type === t.bulleted_list_item ? 'ul' : 'ol', {}, siblings);
 			}
 
 			if (element !== null) {

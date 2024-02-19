@@ -9,7 +9,7 @@ const blockTypes = {
 	divider: "divider",
 	quote: "quote",
 	numbered_list_item: "numbered_list_item",
-	toggle_blocks: "toggle_blocks",
+	toggle: "toggle",
 	column_list_and_column: "column_list_and_column",
 	callout: "callout",
 	to_do: "to_do",
