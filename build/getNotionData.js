@@ -2,12 +2,12 @@
  * @typedef {import("@notionhq/client/build/src/api-endpoints").BlockObjectResponse} BlockObjectResponse
  */
 
-const { Client } = require("@notionhq/client");
-const fs = require("fs");
-const path = require("path");
-const mkdirp = require("mkdirp");
+import { Client } from "@notionhq/client";
+import fs from "fs";
+import path from "path";
+import {mkdirp} from "mkdirp";
 
-const mapNotionData = require("./mapNotionData");
+import mapNotionData from "./mapNotionData.js";
 
 const NOTION_KEY = process.env.NOTION_KEY;
 const NOTION_DB = process.env.NOTION_DB;
