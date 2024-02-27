@@ -9,8 +9,8 @@ dependencies:
     specifier: ^2.2.14
     version: 2.2.14
   notion-html-blocks:
-    specifier: 0.1.3
-    version: 0.1.3(xss@1.0.14)
+    specifier: ^0.1.5
+    version: 0.1.5
   xss:
     specifier: ^1.0.14
     version: 1.0.14
@@ -1275,12 +1275,8 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: true
 
-  /notion-html-blocks@0.1.3(xss@1.0.14):
-    resolution: {integrity: sha512-ovHfQoEaI2d3rEdyOOnfVPi6U9EZWmd1Z6azRbIien7EKi6kGFA2cFPTz5HbERAmCiNyUWwy+nXwHSzAO9kehA==}
-    peerDependencies:
-      xss: ^1.0.14
-    dependencies:
-      xss: 1.0.14
+  /notion-html-blocks@0.1.5:
+    resolution: {integrity: sha512-9p3MpGo38xGfWlY1C+rcLnzq5CVNN8oRHQV+ngZPo2q8q3VyO4ZLcBE0+oBnxxPFNQaXXeE4n5jT+3lAufDuiw==}
     dev: false
 
   /nunjucks@3.2.4(chokidar@3.6.0):

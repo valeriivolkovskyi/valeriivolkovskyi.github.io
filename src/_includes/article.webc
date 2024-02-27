@@ -1,6 +1,6 @@
 ---
 layout: page.webc
-title: WalkSky | Pragmatic web development
+title: article.name
 description: Blog about web development and open source projects
 ---
 <div>Page contents</div>

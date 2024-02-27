@@ -1,26 +1,25 @@
 ---
 layout: page.webc
-title: WalkSky | Pragmatic web development
-description: Blog about web development and open source projects
+title: Where Code Meets Passion: WalkSky Web Development
+description: Passionate development, pragmatic approach to deliver innovative and effective web solutions.
 ---
 <my-component></my-component>
 
-<h1>Blog about web development and high quality open source projects</h1>
+<h1>Blog about web development</h1>
 <div>Long description</div>
 <div>
-
-    <h4>Articles lists</h4>
+    <h4>Articles</h4>
     <ul>
-        <li webc:for="(item) of articlesData" >
-            <a @attributes="({ href: '/articles/'+ item.slug})" @text="item.title"> </a>
+        <li webc:for="(article) of articlesData" >
+            <a @attributes="({ href: '/articles/'+ article.slug})" @text="article.title"> </a>
         </li>
     </ul>
 </div>
 <div>
     <h4>projects</h4>
     <ul>
-        <li webc:for="(item) of projectsData" >
-            <a @attributes="({ href: '/projects/'+ item.slug})" @text="item.title"> </a>
+        <li webc:for="(project) of projectsData" >
+            <a @attributes="({ href: '/projects/'+ project.slug})" @text="project.title"> </a>
         </li>
     </ul>
 </div>
@@ -32,7 +31,5 @@ description: Blog about web development and open source projects
             <span @text="tag[0]"> </span>
         </li>
     </ul>
-
-
 </div>
 
