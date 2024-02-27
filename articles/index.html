@@ -22,20 +22,13 @@
     <link rel="manifest" href="public/manifest.json">
 
     <link rel="stylesheet" href="">
+    <link rel="stylesheet" href="styles/index.css">
     <style>
         body {
             color: #333;
             font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
             margin: 0;
             padding: 0;
-        }
-
-        .content {
-            flex: 1;
-            padding: 1em;
         }
 
         h1, h2, h3, h4, h5, h6 {
@@ -70,51 +63,13 @@
             font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
         }
 
-        #header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 2rem;
-            background-color: #f8f9fa;
-            box-shadow: 0px 1px 1px #ddd;
-            font-family: Courier, Lucida Sans Typewriter, Lucida Typewriter, monospace;
-        }
 
-
-        #nav ul {
-            list-style: none;
-            margin: 0;
-            padding: 0;
-            display: flex;
-        }
-
-        #nav ul li {
-            margin-right: 1rem;
-        }
-
-        #nav ul li a {
-            text-decoration: none;
-            color: #333;
-            transition: color 0.3s ease;
-        }
-
-        #nav ul li a:hover {
-            color: #007bff;
-        }
-
-
-        #footer {
-            background-color: #333;
-            color: white;
-            padding: 1em;
-            bottom: 0;
-        }
     </style>
 
 </head>
 
-<body>
-<header id="header">
+<body class="grid-container">
+<header class="header">
     <nav id="nav">
         <ul>
             <li><a href="/">Home</a></li>
@@ -123,15 +78,18 @@
         </ul>
     </nav>
 </header>
+<div class="left"></div>
 
-<main class="content"><h4>Articles lists</h4>
+<main class="content item"><h4>Articles lists</h4>
 <ul>
     <li>
         <a href="/articles/pattern-observer">Pattern Observer</a>
     </li>
 </ul></main>
 
-<footer id="footer">
+<div class="right"></div>
+
+<footer class="footer">
     © Valerii Volkovskyi 2024
 </footer>
 
