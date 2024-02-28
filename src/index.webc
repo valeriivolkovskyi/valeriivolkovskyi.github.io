@@ -1,12 +1,12 @@
 ---
 layout: page.webc
-title: Where Code Meets Passion: WalkSky Web Development
+title: "WalkSky web development: Where code meets passion"
 description: Passionate development, pragmatic approach to deliver innovative and effective web solutions.
 ---
 <my-component></my-component>
 
-<h1>Blog about web development</h1>
-<div>Long description</div>
+<h1>WalkSky web development: Where code meets passion</h1>
+<div>Passionate development, pragmatic approach to deliver innovative and effective web solutions</div>
 <div>
     <h4>Articles</h4>
     <ul>
@@ -16,7 +16,7 @@ description: Passionate development, pragmatic approach to deliver innovative an
     </ul>
 </div>
 <div>
-    <h4>projects</h4>
+    <h4>Projects</h4>
     <ul>
         <li webc:for="(project) of projectsData" >
             <a @attributes="({ href: '/projects/'+ project.slug})" @text="project.title"> </a>
@@ -24,7 +24,7 @@ description: Passionate development, pragmatic approach to deliver innovative an
     </ul>
 </div>
 <div>
-    <h4>tags</h4>
+    <h4>Tags</h4>
 
     <ul>
         <li webc:for="(tag) of tagsData" >

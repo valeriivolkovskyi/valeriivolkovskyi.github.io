@@ -22,13 +22,14 @@
     <link rel="manifest" href="public/manifest.json">
 
     <link rel="stylesheet" webc:keep :href="getBundleFileUrl('css')">
-    <link rel="stylesheet" webc:keep href="styles/index.css">
+    <link rel="stylesheet" webc:keep href="/styles/index.css">
     <style webc:keep>
         body {
             color: #333;
             font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
             margin: 0;
             padding: 0;
+            /*min-height: 100svh;*/
         }
 
         h1, h2, h3, h4, h5, h6 {
@@ -66,7 +67,7 @@
 
 </head>
 
-<body class="grid-container">
+<body>
 <header class="header">
     <nav id="nav">
         <ul>

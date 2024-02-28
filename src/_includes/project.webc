@@ -1,0 +1,15 @@
+---
+layout: page.webc
+title: project.name
+description: Blog about web development and open source projects
+---
+<div>Page contents</div>
+<div>Last articles list right fixed</div>
+<div>Tags Cloud right fixed</div>
+<article @raw="project.content"></article>
+
+<style>
+    code {
+        white-space: break-spaces;
+    }
+</style>
