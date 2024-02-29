@@ -29,7 +29,6 @@
             font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
             margin: 0;
             padding: 0;
-            /*min-height: 100svh;*/
         }
 
         h1, h2, h3, h4, h5, h6 {
@@ -77,11 +76,9 @@
         </ul>
     </nav>
 </header>
-<div class="left"></div>
 
 <main class="main" @raw="content"></main>
 
-<div class="right"></div>
 
 <footer class="footer">
     &copy; Valerii Volkovskyi 2024

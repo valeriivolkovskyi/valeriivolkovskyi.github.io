@@ -4,5 +4,9 @@ pagination:
     data: articlesData
     size: 1
     alias: article
-permalink: "/articles/{{article.slug }}/index.html"
+permalink: "/articles/{{article.slug}}/index.html"
+eleventyComputed:
+    title: "{{ article.title }}"
+    description: "{{ article.description }}"
 ---
+<div>asdasdds</div>

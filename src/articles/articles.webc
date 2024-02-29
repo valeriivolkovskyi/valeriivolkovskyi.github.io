@@ -4,11 +4,11 @@ pagination:
     data: articlesData
     size: 10
     alias: article
-title: This is page with articles
-description: Web development blog about architecture, frameworks and disign solutions
+title: My personal Blog
+description: Articles about software engineering, web development and productivity by Valerii Volkovskyi
 ---
 
-<h4>Articles lists</h4>
+<h4>Articles list</h4>
 <ul>
     <li webc:for="(item) of articlesData" >
         <a @attributes="({ href: '/articles/'+ item.slug})" @text="item.title"> </a>
