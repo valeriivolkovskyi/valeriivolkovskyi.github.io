@@ -1,7 +1,7 @@
 ---
 layout: page.webc
-title: This is page with projects
-description: Open source projects
+title: Projects
+description: Open source tools and projects
 pagination:
     data: projectsData
     size: 10
