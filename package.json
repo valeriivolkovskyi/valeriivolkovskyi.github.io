@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@notionhq/client": "^2.2.14",
-    "notion-html-blocks": "^0.1.5",
+    "notion-html-blocks": "^0.1.6",
     "xss": "^1.0.14"
   }
 }
