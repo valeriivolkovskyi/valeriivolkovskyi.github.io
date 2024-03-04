@@ -1,0 +1,19 @@
+---
+import { type CollectionEntry, getCollection } from 'astro:content';
+import BlogPost from '../../layouts/BlogPost.astro';
+
+import articles from '../../../_data/articlesData.json'
+
+export async function getStaticPaths() {
+	return articles.map((article) => ({
+		params: { slug: article.slug },
+		props: article,
+	}));
+}
+
+const article = Astro.props;
+
+---
+<BlogPost title={article.title} description={article.description}>
+	<Fragment set:html={article.content}></Fragment>
+</BlogPost>

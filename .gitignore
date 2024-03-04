@@ -5,10 +5,17 @@ node_modules/
 .idea/
 
 # Build folder
-_site
+dist/
 
-# Environment variables
-.env
+# generated types
+.astro/
 
 # articles
 _data
+
+# environment variables
+.env
+.env.production
+
+# macOS-specific files
+.DS_Store

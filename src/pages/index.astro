@@ -1,0 +1,52 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+
+import articles from '../../_data/articlesData.json'
+import HeaderLink from "../components/HeaderLink.astro";
+
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+	</head>
+	<body>
+	<Header></Header>
+
+	<main class="main">
+		<h1>WalkSky web development: Where code meets passion</h1>
+		<div>Passionate development, pragmatic approach to deliver innovative and effective web solutions</div>
+		<div>
+			<h4>Articles</h4>
+			<ul>
+				{
+					articles.map(article => (
+						<li>
+							<a href=`/articles/${article.slug}`>{article.title}</a>
+						</li>
+					))
+				}
+			</ul>
+		</div>
+		<div>
+			<h4>Projects</h4>
+			<ul>
+				<li></li>
+			</ul>
+		</div>
+		<div>
+			<h4>Tags</h4>
+
+			<ul>
+				<li></li>
+			</ul>
+		</div>
+	</main>
+	<Footer></Footer>
+	</body>
+
+</html>
