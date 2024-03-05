@@ -56,6 +56,9 @@ body {
     grid-template-rows: auto 1fr auto;
     grid-auto-flow: dense;
     min-height: 100svh;
+    @media only screen and (max-width: 960px) {
+        grid-template-columns: repeat(12, 1fr);
+    }
 }
 
 header, footer {
@@ -65,6 +68,8 @@ header, footer {
 .main {
     grid-column: 2 / -2;
 }
+
+
 
 header {
     display: flex;
